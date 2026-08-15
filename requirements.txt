@@ -1,0 +1,3 @@
+pywebview
+pyinstaller
+zeroconf>=0.32

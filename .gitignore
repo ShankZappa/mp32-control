@@ -1,0 +1,44 @@
+# macOS / Windows
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Build output
+build/
+dist/
+*.spec
+installer/Output/
+*.dmg
+*.pkg
+*.zip
+
+# Logs and runtime state
+*.log
+last_device.json
+
+# Never commit: network logs, credentials, signing material
+*.pcap
+*.pcapng
+*.pem
+*.p12
+*.pfx
+*.cer
+*.crt
+*.key
+.env
+.env.*
+secrets.*
+
+# Editors
+.idea/
+.vscode/
+*.swp
