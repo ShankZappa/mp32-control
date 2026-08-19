@@ -142,11 +142,15 @@ or browser-rendered is simulated here. Those remain on the physical checklists b
   /repos/ShankZappa/mp32-control/releases/latest` needs no authentication on a public repo
   and returns the tag and the asset list, so the check itself is a few lines.
 
-  Do the cheap version first: compare, and if there is something newer show a quiet line in
-  About with a link to the release page. **Not** download-and-replace — a self-updating app
-  has to swap a bundle while it is running, and on macOS an ad-hoc-signed replacement lands
-  the user back at the Gatekeeper prompt anyway, so the automation buys very little. On
-  Windows the installer already handles replacement.
+  **Notify only — the user downloads it themselves.** A small dot on the About half of the
+  header pill, and one line inside About naming the version with a link to the release page.
+  Nothing else: no banner, no modal, no prompt during a session. Someone mixing should be
+  able to ignore it indefinitely and never be interrupted by it.
+
+  Explicitly **not** download-and-replace. A self-updating app has to swap a bundle while it
+  is running, and on macOS an ad-hoc-signed replacement lands the user back at the Gatekeeper
+  prompt anyway, so the automation buys almost nothing for real risk. On Windows the
+  installer already handles replacement.
 
   Four things to settle before writing it:
 
