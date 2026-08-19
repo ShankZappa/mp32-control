@@ -1552,11 +1552,14 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
 /* The web host wears the arcs: this is the machine publishing mp32-control.local and
    serving the handhelds, and radiating from the state dot says exactly that. Everyone else
    is a bare dot. The wrapper is a fixed box, so arcs appearing never move anything. */
-.hdotwrap{position:relative;width:20px;height:14px;display:flex;align-items:center;
+.hdotwrap{position:relative;width:22px;height:14px;display:flex;align-items:center;
   justify-content:center;flex:0 0 auto}
-.harcs{position:absolute;top:50%;left:50%;width:20px;height:20px;margin:-10px 0 0 -10px;
+.harcs{position:absolute;top:50%;left:50%;width:22px;height:22px;margin:-11px 0 0 -11px;
   color:var(--green);opacity:0;transition:opacity .25s ease;pointer-events:none}
-.hbtn.hstate.webhost .harcs{opacity:.85}
+.hbtn.hstate.webhost .harcs{opacity:.9}
+/* The dot's own glow is what washed the arcs out — at 7 px of blur the two merged into one
+   green smudge. A host keeps a tighter halo so the arcs stay separate strokes. */
+.hbtn.hstate.webhost .dot.on{box-shadow:0 0 4px var(--green)}
 /* Role is a shape, not a word and not a decoration on the state dot: filled means this
    machine publishes mp32-control.local and serves the phones, hollow means it follows one
    that does. The dot beside it stays the connection state, so the two facts never blur. */
@@ -1708,7 +1711,7 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
       <a class="hbtn hbmc" id="bmcBtn" href="https://buymeacoffee.com/franckreisner" target="_blank" rel="noopener noreferrer" title="Buy me a coffee" aria-label="Buy me a coffee"><i aria-hidden="true"></i></a>
     </div>
     <div class="hpair">
-      <button class="hbtn hstate" id="devBtn" onclick="toggleDevPanel(event)" title="Device / connection"><span class="hdotwrap"><svg class="harcs" viewBox="0 0 20 20" aria-hidden="true"><path d="M6.6 13.2a4.5 4.5 0 0 1 0-6.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M13.4 6.8a4.5 4.5 0 0 1 0 6.4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="dot" id="dot"></span></span><svg class="hrole" id="hrole" viewBox="0 0 16 16" aria-hidden="true"><rect x="4.5" y="1.6" width="7" height="12.8" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.9 12.4h2.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="stxt" class="sr">Connecting…</span><span id="stxtShort" class="sr">Connecting</span></button>
+      <button class="hbtn hstate" id="devBtn" onclick="toggleDevPanel(event)" title="Device / connection"><span class="hdotwrap"><svg class="harcs" viewBox="0 0 20 20" aria-hidden="true"><path d="M5.3 13.7A6 6 0 0 1 5.3 6.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14.7 6.3A6 6 0 0 1 14.7 13.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span class="dot" id="dot"></span></span><svg class="hrole" id="hrole" viewBox="0 0 16 16" aria-hidden="true"><rect x="4.5" y="1.6" width="7" height="12.8" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.9 12.4h2.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="stxt" class="sr">Connecting…</span><span id="stxtShort" class="sr">Connecting</span></button>
       <button class="hbtn hpeers" id="peersBtn" onclick="togglePeersPanel(event)" title="Controllers online"><svg class="hmon" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="8.6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 11v2.2M5.6 13.6h4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span id="peerCount">1</span></button>
     </div>
   </div>
