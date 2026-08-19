@@ -149,13 +149,38 @@ or browser-rendered is simulated here. Those remain on the physical checklists b
   beacon, then peer controllers, then an admin-port scan. Device type is confirmed from the
   passive admin read before any device port is opened, so other Antelope hardware on the
   network is never written to while looking for ours.
-- [x] `device_preflight.py` passes: 32 channels and cyclic telemetry in 2.56 s, no vendor
-  panel running.
+- [x] `device_preflight.py` passes: 32 channels and cyclic telemetry in 2.56 s.
+- [x] **A release build produced with the preflight gate active** (2026-08-19). Every earlier
+  1.3.1 bundle was built with `MP32_SKIP_DEVICE_TEST=1` because the unit was unreachable.
+  This one was not: the gate ran, found the unit, validated a 32-channel config and observed
+  live cyclic telemetry before PyInstaller was invoked.
+- [x] **Gain calibration confirmed against hardware** (2026-08-19): the unit reported raw `0`
+  on all 32 channels and the UI displayed `5` dB, which is exactly `raw_gain_to_display()`
+  for Mic. The zero point really does live in the panel, not the device.
+- [x] **Standby is detected and displayed correctly on hardware** (2026-08-19). With the unit
+  powered down the header reads `Standby · device powered down`, the banner appears, and the
+  strips and meters dim. Worth knowing why that matters: in standby the device reports peak
+  `0` on every channel, and `0` is *loudest* in this protocol, so without the standby styling
+  all 32 meters would sit pinned at full scale.
+- [x] **Web-host election and mDNS publication confirmed on hardware** (2026-08-19): the
+  packaged app reached `online`, took the web-host role after the election grace, and
+  published `mp32-control.local`.
+
+**Addressing moves, and assuming otherwise wastes time.** On 2026-08-19 the MP32 host was
+`192.168.1.103`, not the `.110` recorded earlier — `.110` had been reassigned to a laptop.
+Two Galaxy32 addresses were also live. Never hard-code a host: scan the subnet's admin ports
+(2020), which is a passive read, and confirm the attached unit from its reply before opening
+any device port.
 - [x] macOS Apple Silicon build produced and smoke-tested: the packaged app reaches `online`
   with 32 channels, becomes web host, and publishes `mp32-control.local`.
 
 ## Physical-device verification
 
+- [ ] **Confirm VU behaviour with the unit powered ON and no signal present.** In standby it
+  reports peak `0` on every channel, which this protocol reads as full scale; the standby
+  styling hides that. If a powered unit with silent inputs also reported `0`, every meter
+  would sit pinned at maximum with nothing to explain it. Expect `60+` for silence. This
+  needs the unit switched on, which is a write, so it was not done unattended.
 - [ ] Verify standby/power behavior and recovery without risking active sessions.
 - [ ] Verify preset recall and save independently for all three preset slots.
 - [ ] Verify Mic, Line, and Hi-Z raw limits/display calibration against current firmware.
