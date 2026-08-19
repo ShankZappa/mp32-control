@@ -5,4 +5,9 @@ Antelope Audio, MP32, and other product names may be trademarks of their
 respective owners and are used only to identify compatible hardware.
 
 The MIT License applies to the original source code and project-owned artwork
-in this repository. It does not grant rights to third-party trademarks.
+in this repository. It does not grant rights to third-party trademarks, nor to any
+material the repository identifies as not originated by this project.
+
+Standalone builds bundle third-party Python software under its own licenses; see
+THIRD_PARTY_NOTICES.md. Those licenses apply to the built application, not to this
+repository, which distributes no third-party code.
