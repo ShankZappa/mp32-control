@@ -16,8 +16,21 @@ Everything recorded here was confirmed the same way:
 3. repeat the request and confirm the same result, so the entry is reproducible;
 4. write the serializers, state handling and UI in this project independently.
 
-The repository contains no vendor source code, vendor application binaries, or vendor
-assets.
+## What is, and is not, originated here
+
+The client, its serialization, its state handling and its interface are written for this
+project. `REPORT_FORMAT` in `mp32_protocol.py` is not: it is a description of the device's
+own report format — which commands exist and how their fields are laid out.
+
+It is carried here because the client cannot start without it. The host refuses every
+device request until a report format is registered (see below), and no working subset or
+substitute is known. The format governs how the *host* packs reports for the device over
+USB; a client on the network never sees those bytes, so it is not something a client can
+derive by testing its own connection.
+
+This is stated openly rather than left for a reader to work out. The repository contains no
+vendor source code, no vendor application binaries, no vendor assets, no decompiled
+material, and no captured network data.
 
 Do not commit network logs, diagnostic dumps or device inventories. They routinely contain
 serial numbers, hostnames, private IP addresses and other identifying data. Contribute

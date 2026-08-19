@@ -5,7 +5,10 @@ Contributions are welcome for independently written code, documentation, and tes
 ## Repository hygiene
 
 - Do not submit vendor binaries, vendor source code, proprietary assets, or confidential
-  material.
+  material. One exception already exists and is bounded: the report-format description the
+  client cannot start without, explained in [README.md](README.md#interoperability-protocol)
+  and [docs/PROTOCOL.md](docs/PROTOCOL.md). Nothing further of that kind belongs here, and
+  that one is not a precedent for adding more.
 - Do not submit network logs or diagnostic dumps containing device serials, hostnames,
   credentials, or private network addresses. Provide sanitized field descriptions or test
   fixtures instead.

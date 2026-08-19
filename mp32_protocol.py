@@ -1,10 +1,14 @@
 """MP32 interoperability protocol helpers.
 
-This module contains only the independent client's wire-level constants and original
-serialization code. Every value here describes what this client sends and what the host
-server requires from it in order to interoperate, and each was confirmed by running the
-client against hardware owned by the project maintainer. No vendor source code or
-binaries are included.
+Wire-level constants and serialization for the independent client. Everything here
+describes what this client sends and what the host server requires back in order to
+interoperate, and each value was confirmed by running the client against hardware owned by
+the project maintainer.
+
+One exception is marked where it appears: `REPORT_FORMAT` is a description of the device's
+own report format and is **not originated by this project**. It is carried here because the
+client cannot start without it. See the interoperability section of README.md and
+docs/PROTOCOL.md for why, and for what this repository does not contain.
 
 Protocol details can vary by firmware. Contributors should confirm any change against
 their own physical hardware and record the result so that others can reproduce it.
@@ -89,6 +93,12 @@ GAIN_MAX_RAW = (56, 29, 36)  # Mic, Line, Hi-Z; verified against the current tes
 # Confirmed 2026-07-29 against firmware 1.4 / host server 1.8.9: get_config returns
 # COMMAND_STATUS FAIL before registration and a full 32-channel config immediately after,
 # on the same socket and on a fresh one.
+#
+# NOT ORIGINATED BY THIS PROJECT. This is a description of the device's own report
+# format. It is carried here because the client cannot start without it and no working
+# subset or substitute is known -- the format governs how the host packs reports for the
+# device over USB, which a client on the network never sees. See the interoperability
+# section of README.md and docs/PROTOCOL.md.
 #
 # Field entries are [name, ctype] with an optional bit width and an optional constant value.
 REPORT_FORMAT = {

@@ -6,6 +6,16 @@ and serves the same interface to phones and tablets on the local network.
 
 > This project is not affiliated with, sponsored by, or endorsed by Antelope Audio.
 
+## Why this exists
+
+The MP32 is capable hardware with a long service life. Its control software has not kept
+pace, and attempts to raise this with the manufacturer went unanswered. This project is an
+independent client so that hardware people already own stays usable.
+
+It replaces nothing on the device and requires no modification to it. It speaks to the same
+host server the manufacturer's own panel speaks to, over the local network, and the two can
+run alongside each other.
+
 ## Features
 
 - 32-channel gain, 48 V phantom power, and Mic/Line/Hi-Z control
@@ -60,14 +70,23 @@ hardware before enabling phantom power or bulk controls.
 
 ## Interoperability protocol
 
-The client implementation is independently written. What it sends, and what it requires
-back in order to work, is documented and was confirmed by running it against hardware
-owned by the project maintainer. The repository contains no vendor source code, binaries,
-or assets.
+The client, its serialization, state handling and interface are written for this project.
+What it sends and what it needs back is documented in
+[docs/PROTOCOL.md](docs/PROTOCOL.md), and every entry was confirmed by running this client
+against hardware owned by the project maintainer.
 
-Protocol constants and original serialization helpers live in
-[mp32_protocol.py](mp32_protocol.py). The maintenance reference and contribution rules are
-in [docs/PROTOCOL.md](docs/PROTOCOL.md).
+One item needs saying plainly. `REPORT_FORMAT` in [mp32_protocol.py](mp32_protocol.py)
+describes the device's report format — which commands exist and how their fields are laid
+out. It is an interface description, and it is **not originated by this project**.
+
+It is here because the client cannot work without it. The host server refuses *every*
+device request, answering `COMMAND_STATUS: FAIL` to all of them, until some client has
+registered a report format. No working subset or substitute is known: the format tells the
+host how to pack reports for the device over USB, which is not observable from a client's
+position on the network.
+
+What this repository does **not** contain: vendor source code, vendor binaries, vendor
+application assets, decompiled material, or captured network data.
 
 ## Project status
 
