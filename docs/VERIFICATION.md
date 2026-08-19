@@ -138,6 +138,30 @@ or browser-rendered is simulated here. Those remain on the physical checklists b
   Build this only on top of a release that is already verified on hardware, and verify it
   against both an MP32 and the smaller unit before enabling it by default.
 
+- [ ] **Check GitHub for a newer release, and offer it.** `GET
+  /repos/ShankZappa/mp32-control/releases/latest` needs no authentication on a public repo
+  and returns the tag and the asset list, so the check itself is a few lines.
+
+  Do the cheap version first: compare, and if there is something newer show a quiet line in
+  About with a link to the release page. **Not** download-and-replace — a self-updating app
+  has to swap a bundle while it is running, and on macOS an ad-hoc-signed replacement lands
+  the user back at the Gatekeeper prompt anyway, so the automation buys very little. On
+  Windows the installer already handles replacement.
+
+  Four things to settle before writing it:
+
+  - **One source of truth for the version.** `1.3.1` currently appears in the About panel,
+    `version_info.txt`, `build_mac.sh` and the installer script. A comparison is meaningless
+    until they cannot drift apart.
+  - **This is the first thing in the app that reaches the internet.** Everything else is
+    confined to the LAN, and `SECURITY.md` says so. The check must be opt-in or clearly
+    disclosed, must never block startup or any device path, and must fail silently — a
+    studio with no outbound route should notice nothing.
+  - **It tells GitHub someone is running the app.** Not much, but say so rather than let a
+    user discover it.
+  - **Compare tags properly.** `v1.3.10` is newer than `v1.3.9`; string comparison says
+    otherwise.
+
 - [ ] iOS PWA test on the real iPad/iPhone: install from `mp32-control.local`, confirm the
   panel loads, then quit the web host and confirm the PWA recovers through a remembered peer
   address rather than waiting on Safari's DNS cache. Then reopen the former host and confirm
