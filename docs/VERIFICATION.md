@@ -39,9 +39,15 @@ which had stopped describing its own contents.
   3. **Send the pair** (`{pt, lc}` or a decimal string): exact and future-proof, but it
      changes the shape of every metadata event on the wire.
 
-  Whichever is chosen needs the mixed-version case thought through, since a controller that
-  has not been updated keeps sending the old encoding. Verify across at least two machines
-  with a deliberately skewed clock before shipping.
+  **Option 3 is the only migration-safe one, and that decides it.** Options 1 and 2 both
+  make new timestamps *smaller* than existing ones — a controller that has not been updated
+  keeps emitting ~1.17e17 values, which beat every new one forever. That trades one silent
+  data loss for another. Option 3 keeps the physical millisecond in the same space, so a
+  legacy numeric timestamp decodes cleanly as `(pt = ts / 65536, lc = 0)` and compares
+  correctly against a new pair. Mixed-version networks stay ordered.
+
+  Verify across at least two machines with a deliberately skewed clock before shipping, and
+  keep one un-updated controller in that test — the mixed-version case is the whole risk.
 
 - [x] **Groups and stereo links did not reach the other controller.** Fixed 2026-07-29.
 
