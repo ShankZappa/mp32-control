@@ -86,7 +86,7 @@ scratchpad.
 python3 tests/run_all.py
 ```
 
-Six suites, 144 checks, about 35 seconds, no hardware required. Every controller is a real
+Seven suites, 162 checks, about 50 seconds, no hardware required. Every controller is a real
 process running the shipped application over the real HTTP API and real multicast — the
 property that made the originals worth having, since both defects this project shipped were
 in the interaction between controllers rather than inside any one function. The browser half
@@ -101,6 +101,7 @@ in the interaction between controllers rather than inside any one function. The 
 | shared notes cards and leases | 34 |
 | web-host liveness and the phone's recovery contract | 35 |
 | hybrid logical clock | 11 |
+| metadata survives a controller restart | 18 |
 
 The two hard-won details that cost the most time are now handled by the harness rather than
 left to discipline — HLC-shaped timestamps via `harness.hlc()`, and per-run multicast

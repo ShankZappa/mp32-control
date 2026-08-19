@@ -90,11 +90,54 @@ def save_last_device(ip: str, port: int):
             json.dump({"ip": ip, "port": int(port)}, f)
     except Exception:
         pass
+def _meta_path() -> str:
+    return os.path.join(_state_dir(), "metadata.json")
+
+
+def load_meta_fields() -> Dict[str, Any]:
+    """Restore replicated metadata from disk.
+
+    Without this the controller holds metadata only in memory, so a restart empties it and
+    the first browser to reconnect re-seeds whatever it still remembers — including values
+    deleted while it was closed. Persisting means the network's current state outlives the
+    process and an older stored copy simply loses the timestamp comparison.
+    """
+    try:
+        with open(_meta_path(), "r", encoding="utf-8") as f:
+            data = json.load(f)
+        fields = data.get("fields") if isinstance(data, dict) else None
+        if not isinstance(fields, dict):
+            return {}
+        out = {}
+        for key, item in fields.items():
+            if isinstance(item, dict) and "ts" in item:
+                out[str(key)] = {"value": item.get("value"), "ts": item["ts"]}
+        return out
+    except (OSError, ValueError):
+        return {}
+
+
+def save_meta_fields(fields: Dict[str, Any]):
+    """Write atomically: a controller killed mid-write must not leave a truncated file that
+    reads as 'no metadata' and hands the network back to a stale browser."""
+    tmp = _meta_path() + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump({"fields": fields}, f, separators=(",", ":"))
+        os.replace(tmp, _meta_path())
+    except (OSError, ValueError):
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+
+
 DEVICE_MATCH = "MP32"            # auto-connect to the discovered device whose name contains this ("" = off)
 SERVER_PORT  = 8765
 SERVER_BIND  = "0.0.0.0"   # LAN test: allow phones/tablets on the same network
 STABLE_HOST  = "mp32-control.local"
 PEER_HEARTBEAT_INTERVAL = 1.0
+META_PERSIST_INTERVAL = 2.0   # seconds between metadata flushes to disk
 PEER_TIMEOUT = 3.5
 HOST_ELECTION_GRACE = 2.5
 HOST_MDNS_TTL = 5
@@ -838,7 +881,8 @@ class PeerService:
         self.host = socket.gethostname()
         self.started_at = time.time()
         self.peers: Dict[str, Dict[str, Any]] = {}
-        self.fields: Dict[str, Dict[str, Any]] = {}   # shared metadata: key -> {value, ts}
+        self.fields: Dict[str, Dict[str, Any]] = load_meta_fields()   # key -> {value, ts}
+        self._fields_dirty = False
         self._tx = None
         self._lock = threading.Lock()
         self._running = False
@@ -853,9 +897,26 @@ class PeerService:
             self._tx = None
         threading.Thread(target=self._listen,   name="PeerListen",   daemon=True).start()
         threading.Thread(target=self._announce, name="PeerAnnounce", daemon=True).start()
+        threading.Thread(target=self._persist_loop, name="PeerPersist", daemon=True).start()
 
     def stop(self):
         self._running = False
+        self._flush_fields()
+
+    def _flush_fields(self):
+        with self._lock:
+            if not self._fields_dirty:
+                return
+            snapshot = dict(self.fields)
+            self._fields_dirty = False
+        save_meta_fields(snapshot)
+
+    def _persist_loop(self):
+        # Batched rather than written per event: metadata arrives in bursts (a browser
+        # seeding on load pushes every key it holds) and each burst is one write.
+        while self._running:
+            time.sleep(META_PERSIST_INTERVAL)
+            self._flush_fields()
 
     def _listen(self):
         try:
@@ -972,6 +1033,7 @@ class PeerService:
             if cur and cur["ts"] >= ts:
                 return   # we already have a newer/equal value
             self.fields[key] = {"value": value, "ts": ts}
+            self._fields_dirty = True
         if broadcast and self._tx:
             msg = {"type": "meta", "id": self.id, "key": key, "value": value, "ts": ts}
             try:

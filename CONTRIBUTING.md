@@ -18,7 +18,7 @@ Contributions are welcome for independently written code, documentation, and tes
 
 ## Testing
 
-- Run `python3 tests/run_all.py` — 144 checks, about 35 seconds, no hardware required.
+- Run `python3 tests/run_all.py` — 162 checks, about 50 seconds, no hardware required.
   See [tests/README.md](tests/README.md) for what it does and does not cover.
 - Run `python3 -m py_compile mp32_gui.py mp32_protocol.py app.py`.
 - Test UI changes in both desktop and phone-sized layouts.

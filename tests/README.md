@@ -4,7 +4,7 @@
 python3 tests/run_all.py
 ```
 
-Roughly 35 seconds, 144 checks, no hardware and no network access required. Individual
+Roughly 50 seconds, 162 checks, no hardware and no network access required. Individual
 suites run on their own the same way (`python3 tests/test_group_metadata.py`).
 
 Requires Python 3.9+ and, for the browser-side suites, `node` on PATH. Without node those
@@ -28,6 +28,7 @@ them.
 | `test_notes_cards.py` | 34 | Per-card keys, lease acquire/expire/contend, tombstones, migration |
 | `test_host_failover.py` | 35 | Liveness probe and candidacy loss, stale-self exclusion, proxy ordering, CORS and the fields the phone's recovery reads |
 | `test_hlc.py` | 11 | Hybrid logical clock: skew adoption, migration, encoding limits |
+| `test_metadata_persistence.py` | 18 | Metadata restored after restart, deletions holding, corrupt file tolerated |
 
 ## What these do NOT cover
 
@@ -86,3 +87,5 @@ because `pt * 65536` lands thirteen times above `Number.MAX_SAFE_INTEGER`. See
 - The device is constructed but never started, so no test can reach or write to hardware.
 - Each run uses its own multicast group and port, so two runs — or a run and the real app —
   never interfere.
+- Each controller gets its own state directory, so a run never reads or writes the real
+  user's persisted metadata.

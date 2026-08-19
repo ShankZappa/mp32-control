@@ -26,6 +26,8 @@ import threading
 import time
 import urllib.error
 import urllib.request
+import shutil
+import tempfile
 import uuid
 from typing import Any, Dict, List, Optional
 
@@ -118,8 +120,9 @@ class Controller:
     """One real controller process."""
 
     def __init__(self, node: str, group: str, mcast_port: int,
-                 started_at: Optional[float] = None):
+                 started_at: Optional[float] = None, state_dir: Optional[str] = None):
         self.node = node
+        self.state_dir = state_dir
         self.port = _free_port()
         self.base = f"http://127.0.0.1:{self.port}"
         self.peer_id: Optional[str] = None
@@ -129,6 +132,8 @@ class Controller:
                "--group", group, "--mcast-port", str(mcast_port)]
         if started_at is not None:
             cmd += ["--started-at", repr(started_at)]
+        if state_dir is not None:
+            cmd += ["--state-dir", state_dir]
         self.proc = subprocess.Popen(cmd, cwd=ROOT, stdout=subprocess.PIPE,
                                      stderr=subprocess.STDOUT, text=True, bufsize=1)
         threading.Thread(target=self._drain, daemon=True).start()
@@ -221,14 +226,24 @@ class Cluster:
         self.mcast_port = 20000 + (rid % 20000)
         self.run_id = uuid.uuid4().hex[:8]
         self.controllers: List[Controller] = []
+        self._state_root = tempfile.mkdtemp(prefix="mp32-test-state-")
+
+    def state_dir(self, name: str) -> str:
+        """A private persistence directory, so a restarted controller can be given the same
+        one and the real user's metadata is never touched."""
+        import os
+        d = os.path.join(self._state_root, name)
+        os.makedirs(d, exist_ok=True)
+        return d
 
     def key(self, name: str) -> str:
         """Namespace a metadata key to this run, so an unrelated controller's
         re-announced metadata can never satisfy or break an assertion."""
         return f"{name}-{self.run_id}"
 
-    def start(self, node: str, started_at: Optional[float] = None) -> Controller:
-        c = Controller(node, self.group, self.mcast_port, started_at)
+    def start(self, node: str, started_at: Optional[float] = None,
+              state_dir: Optional[str] = None) -> Controller:
+        c = Controller(node, self.group, self.mcast_port, started_at, state_dir)
         self.controllers.append(c)
         c.wait_ready()
         return c
@@ -243,6 +258,7 @@ class Cluster:
         for c in self.controllers:
             c.stop()
         self.controllers.clear()
+        shutil.rmtree(self._state_root, ignore_errors=True)
 
     def __enter__(self) -> "Cluster":
         return self

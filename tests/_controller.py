@@ -22,6 +22,8 @@ What is different from `mp32_gui.main()`, and why:
 * **mDNS publication disabled.** `mp32-control.local` is a single network-wide name. A
   test must never claim it from a real controller. The election itself is untouched —
   only the publish call is a no-op.
+* **An isolated state directory.** Metadata now persists to disk, and the application's
+  state directory is shared per user — a test run must never write into the real one.
 * **Loopback bind, and the peer HTTP probe forced reachable.** Binding to localhost keeps
   an unauthenticated control API off the network. The liveness probe connects to a peer's
   LAN address on *our own* port, which cannot work when several controllers share one
@@ -33,6 +35,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import signal
 import sys
 import threading
 import time
@@ -51,8 +54,15 @@ def main() -> int:
     ap.add_argument("--mcast-port", type=int, required=True)
     ap.add_argument("--started-at", type=float, default=None,
                     help="override started_at to script the chronological election")
+    ap.add_argument("--state-dir", default=None,
+                    help="isolated directory for persisted metadata")
     args = ap.parse_args()
 
+    if args.state_dir:
+        # Never touch the real user's metadata.json: these suites write and delete
+        # metadata, and the application's state directory is shared per user.
+        os.makedirs(args.state_dir, exist_ok=True)
+        G._state_dir = lambda _d=args.state_dir: _d
     G.SERVER_PORT = args.port
     G.PeerService.GROUP = args.group
     G.PeerService.PORT = args.mcast_port
@@ -90,6 +100,11 @@ def main() -> int:
 
     print(json.dumps({"ready": True, "node": args.node, "port": args.port,
                       "peer_id": peers.id, "started_at": peers.started_at}), flush=True)
+
+    # The harness stops a controller with SIGTERM, which by default kills the process
+    # outright — the shutdown path, including the metadata flush, would never run and the
+    # persistence suite would be testing nothing.
+    signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
 
     try:
         while True:

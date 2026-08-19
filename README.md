@@ -50,7 +50,7 @@ See [docs/BUILD.md](docs/BUILD.md) for standalone application builds.
 python3 tests/run_all.py
 ```
 
-144 checks in about 35 seconds. No hardware and no network access required — the suites
+162 checks in about 50 seconds. No hardware and no network access required — the suites
 start real controller processes and exercise the peer metadata, web-host election and HTTP
 API over the real transports. [tests/README.md](tests/README.md) states exactly what is and
 is not covered.
