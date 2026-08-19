@@ -243,6 +243,11 @@ class Cluster:
 
     def start(self, node: str, started_at: Optional[float] = None,
               state_dir: Optional[str] = None) -> Controller:
+        # Always isolated. Metadata persists now, so a controller started without one would
+        # read and write the real user's metadata.json — polluting their studio and letting
+        # their data decide the outcome of a test.
+        if state_dir is None:
+            state_dir = self.state_dir(f"{node}-{len(self.controllers)}")
         c = Controller(node, self.group, self.mcast_port, started_at, state_dir)
         self.controllers.append(c)
         c.wait_ready()

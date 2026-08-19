@@ -15,7 +15,7 @@
 ; ============================================================================
 
 #define AppName        "MP32 Control"
-#define AppVersion     "1.3.1"
+#define AppVersion     "1.3.2"
 #define AppPublisher   "Independent MP32 Control Project"
 #define AppExeName     "MP32 Control.exe"
 #define SrcDir         "..\dist"

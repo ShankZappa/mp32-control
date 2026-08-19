@@ -1355,7 +1355,7 @@ body{background:var(--bg);color:var(--t1);min-height:100vh;
 .armed,.pwr.armed,.savebtn.armed,.pbtn.armed,.tbtn.armed{
   border-color:var(--phantom)!important;color:var(--phantom)!important;
   background:rgba(255,154,0,.14)!important;animation:arm-pulse 1.1s ease-out infinite}
-.hicon{display:none}
+.hicon{display:inline}
 #stxtShort{display:none}
 .pill{display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:var(--card);font-size:11px;color:var(--t2)}
 .dot{width:7px;height:7px;border-radius:50%;background:#444;transition:all .3s}
@@ -1543,6 +1543,31 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
    image sat on the button as a tile; a mask is an icon. Full brand colour on hover, where
    it is being looked at anyway. */
 .hbtn.hbmc{padding-left:10px;padding-right:10px}
+/* Connection state and controller count are one control: both are "who am I talking to",
+   and each half opens the panel that explains its own side. The state half shows only its
+   dot — the sentence it used to carry is the tooltip and the panel heading now.
+   A ring marks this controller as the one publishing mp32-control.local, which is the one
+   piece of the old label that a colour alone could not say. */
+.hbtn.hstate{padding-left:11px;padding-right:11px}
+/* Role is a shape, not a word and not a decoration on the state dot: filled means this
+   machine publishes mp32-control.local and serves the phones, hollow means it follows one
+   that does. The dot beside it stays the connection state, so the two facts never blur. */
+/* The web host is the machine phones actually connect to, so a phone is what marks it —
+   the same language as the monitor beside it, which counts controllers. The slot is always
+   reserved: showing and hiding must never resize the button or shift its neighbours. */
+.hrole{width:12px;height:12px;margin-left:5px;flex:0 0 auto;color:var(--t3);opacity:0;
+  transition:opacity .2s ease,color .2s ease}
+.hbtn.hstate.webhost .hrole{opacity:.55}
+/* A phone or tablet is on the web interface right now. Colour and a slow breath, never
+   size — a pulse that moves things is a distraction in a room where people are working. */
+.hbtn.hstate.webhost.served .hrole{opacity:1;color:var(--accent);animation:served 2.4s ease-in-out infinite}
+@keyframes served{0%,100%{opacity:1}50%{opacity:.45}}
+.hbtn.hpeers{padding-left:10px;padding-right:11px;gap:5px;font-variant-numeric:tabular-nums}
+.hmon{width:13px;height:13px;display:block;flex:0 0 auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Header buttons are icons. Words in this row are the first thing to run out of space on a
+   phone, and every one of them has an icon that says the same. */
+.hlabel{display:none}
 .hbtn.hbmc i{display:block;width:14px;height:14px;background:currentColor;
   /* Assets are served with a day of cache, so a file that changes shape between builds is
      still the old one in an already-running webview. The query makes the URL change with it. */
@@ -1669,16 +1694,17 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
   <div class="hright">
     <button class="hbtn history" id="undoBtn" onclick="undoChange()" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo" disabled>↶</button>
     <button class="hbtn history" id="redoBtn" onclick="redoChange()" title="Redo (Ctrl/Cmd+Shift+Z)" aria-label="Redo" disabled>↷</button>
-    <button class="hbtn" id="peersBtn" onclick="togglePeersPanel(event)" title="Controllers online"><span class="pcdot"></span><span id="peerCount">1</span></button>
     <button class="hbtn" id="gainModeBtn" onclick="toggleGainMode()" title="Gain display: classic dB ↔ raw device value">dB</button>
     <div class="hpair">
       <button class="hbtn" id="aboutBtn" onclick="toggleAbout(true)" title="About MP32 Control"><span class="hicon">ⓘ</span><span class="hlabel">About</span></button>
       <a class="hbtn hbmc" id="bmcBtn" href="https://buymeacoffee.com/franckreisner" target="_blank" rel="noopener noreferrer" title="Buy me a coffee" aria-label="Buy me a coffee"><i aria-hidden="true"></i></a>
     </div>
-    <button class="hbtn" id="devBtn" onclick="toggleDevPanel(event)" title="Device / connection"><span class="hicon">⚙</span><span class="hlabel">⚙ Device</span></button>
+    <div class="hpair">
+      <button class="hbtn hstate" id="devBtn" onclick="toggleDevPanel(event)" title="Device / connection"><span class="dot" id="dot"></span><svg class="hrole" id="hrole" viewBox="0 0 16 16" aria-hidden="true"><rect x="4.5" y="1.6" width="7" height="12.8" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.9 12.4h2.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span id="stxt" class="sr">Connecting…</span><span id="stxtShort" class="sr">Connecting</span></button>
+      <button class="hbtn hpeers" id="peersBtn" onclick="togglePeersPanel(event)" title="Controllers online"><svg class="hmon" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="8.6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 11v2.2M5.6 13.6h4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg><span id="peerCount">1</span></button>
+    </div>
   </div>
   <div class="hstatus">
-    <div class="pill"><span class="dot" id="dot"></span><span id="stxt">Connecting…</span><span id="stxtShort">Connecting</span></div>
     <button class="pwr" id="pwr" onclick="togglePower()" title="Standby / Power">⏻</button>
   </div>
 </header>
@@ -1756,7 +1782,7 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
 <div class="palette" id="palette"></div>
 <div class="modal-bg" id="aboutModal" onclick="if(event.target===this)toggleAbout(false)">
   <section class="about" role="dialog" aria-modal="true" aria-labelledby="aboutTitle">
-    <div class="about-head"><img src="/app-icon.png" alt="MP32 Control icon"><div><h2 id="aboutTitle">MP32 Control</h2><div class="ver">Version 1.3.1 · Custom control panel</div></div></div>
+    <div class="about-head"><img src="/app-icon.png" alt="MP32 Control icon"><div><h2 id="aboutTitle">MP32 Control</h2><div class="ver">Version 1.3.2 · Custom control panel</div></div></div>
     <p><strong>MP32 Control</strong> is an independent remote control application for the Antelope Audio MP32 32-channel microphone preamplifier.</p>
     <p>It discovers the MP32 on the local network and controls gain, 48 V phantom power, input type, presets and live VU metering. Channel names, colours, groups, stereo links and Public Notes can be shared between desktop and mobile controllers on the same LAN.</p>
     <p>The app runs natively on macOS and Windows and also serves a phone/tablet web interface. It communicates directly with compatible hardware over the local network.</p>
@@ -2176,6 +2202,16 @@ function applyState(){
         : st.connected===false && st.connection_state==='online' ? 'Offline'
         : {discovering:'Finding…',connecting:'Connecting…',loading_config:'Loading…',
            tcp_error:'No device',disconnected:'Lost'}[st.connection_state] || 'Offline');
+  // The header shows a dot, not a sentence. The words still exist — they are the button's
+  // tooltip and the Device panel's own heading — so nothing is lost, it just stops taking
+  // 180 px of a row that has to survive a phone.
+  document.getElementById('devBtn').title =
+      document.getElementById('stxt').textContent + ' — click for device and connection';
+  const isHost = st.controller_role === 'web_host';
+  const dev = document.getElementById('devBtn');
+  dev.classList.toggle('webhost', isHost);
+  dev.classList.toggle('served', isHost && (st.web_clients || 0) > 0);
+
   document.getElementById('pwr').classList.toggle('on', !!st.power_on);   // preserves .armed
   // Only meaningful while genuinely connected: a disconnected panel has no idea what the
   // unit's power state is, and must not claim it is in standby.
@@ -2968,6 +3004,26 @@ class Handler(BaseHTTPRequestHandler):
         '/api/save_preset', '/api/set_power', '/api/connect',
     }
 
+    # Which machines are actually using the web interface right now. Only the host serves
+    # phones, and only non-loopback callers count: the desktop app's own window talks to
+    # 127.0.0.1 and is not a second device.
+    web_clients: Dict[str, float] = {}
+    WEB_CLIENT_TTL = 12.0
+
+    def note_web_client(self):
+        ip = self.client_address[0] if self.client_address else ""
+        if not ip or ip.startswith("127.") or ip == "::1":
+            return
+        Handler.web_clients[ip] = time.time()
+
+    @classmethod
+    def active_web_clients(cls) -> int:
+        now = time.time()
+        for ip, seen in list(cls.web_clients.items()):
+            if now - seen > cls.WEB_CLIENT_TTL:
+                del cls.web_clients[ip]
+        return len(cls.web_clients)
+
     def log_message(self, fmt, *args):
         pass  # suppress logs
 
@@ -3007,6 +3063,7 @@ class Handler(BaseHTTPRequestHandler):
         return None
 
     def do_GET(self):
+        self.note_web_client()
         path = urlparse(self.path).path
         if path in ('/', '/index.html'):
             body = HTML_PAGE.encode('utf-8')
@@ -3057,6 +3114,7 @@ class Handler(BaseHTTPRequestHandler):
             s['stable_host_available'] = bool(self.host_service and self.host_service.available)
             s['unreachable_hosts'] = self.host_service.unreachable_hosts() if self.host_service else []
             s['controller_role'] = 'web_host' if (self.host_service and self.host_service.active) else 'desktop'
+            s['web_clients'] = self.active_web_clients()
             self._send_json(s)
         elif path == '/api/devices':
             self._send_json({'devices': self.beacon.list() if self.beacon else []})

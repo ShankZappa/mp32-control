@@ -26,8 +26,8 @@ python3 -m PyInstaller --windowed --noconfirm --clean \
 rm -rf "dist/MP32 Control"   # remove redundant onedir folder; keep only the .app
 PLIST="dist/MP32 Control.app/Contents/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName MP32 Control" "$PLIST" 2>/dev/null || true
-/usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string 1.3.1" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.3.1" "$PLIST"
-/usr/libexec/PlistBuddy -c "Add :CFBundleVersion string 1.3.1" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Set :CFBundleVersion 1.3.1" "$PLIST"
+/usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string 1.3.2" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.3.2" "$PLIST"
+/usr/libexec/PlistBuddy -c "Add :CFBundleVersion string 1.3.2" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Set :CFBundleVersion 1.3.2" "$PLIST"
 /usr/libexec/PlistBuddy -c "Add :NSHumanReadableCopyright string Independent MP32 Control project. Not affiliated with Antelope Audio." "$PLIST" 2>/dev/null || true
 
 # A Developer ID certificate makes Gatekeeper trust distributable builds. Without one,
