@@ -92,6 +92,14 @@ if defined MP32_ONEDIR (
   echo Mode: single file ^(set MP32_ONEDIR=1 for a faster-starting folder build^)
 )
 
+REM  A binary build bundles its dependencies, and two of them carry terms that follow
+REM  the binary (pywebview BSD-3, zeroconf LGPL-2.1+). Fail rather than ship without them.
+python collect_licenses.py "build\legal-third-party"
+if errorlevel 1 (
+  echo ERROR: third-party license texts could not be collected. See the message above.
+  goto :fail
+)
+
 python -m PyInstaller --windowed !PKGMODE! --noconfirm --clean ^
   --name "MP32 Control" ^
   --icon "assets\mp32-control.ico" ^
@@ -102,6 +110,7 @@ python -m PyInstaller --windowed !PKGMODE! --noconfirm --clean ^
   --add-data "LICENSE;legal" ^
   --add-data "NOTICE;legal" ^
   --add-data "THIRD_PARTY_NOTICES.md;legal" ^
+  --add-data "build\legal-third-party;legal\third-party" ^
   app.py
 if errorlevel 1 (
   echo ERROR: PyInstaller failed. The output above says why.

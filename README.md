@@ -88,6 +88,28 @@ position on the network.
 What this repository does **not** contain: vendor source code, vendor binaries, vendor
 application assets, decompiled material, or captured network data.
 
+## Untested: more than one unit on a network
+
+Everything here has been verified against **one MP32**. It has never been run with two MP32s
+on the same network, nor with any other preamp, and the interface draws a fixed 32 channels
+regardless of what is actually attached.
+
+If you have that hardware and try it, findings are genuinely welcome — open an issue. Useful
+things to report: what the admin port reported was attached, how many channels came back,
+whether each unit stayed independent, and anything that behaved differently from this
+description. Please leave out serial numbers and private addresses.
+
+One safety note if you do experiment. Report-format registration is **host-wide, sticky and
+first-one-wins**, so registering a format that does not match the attached unit breaks that
+host for every client on it — including the manufacturer's own panel — until its server
+restarts. This client confirms the attached unit from a passive admin-port read before
+opening any device port, and anything built on top of it must keep doing that.
+
+Controlling several units from one panel is intended, and
+[docs/MULTI_DEVICE_DESIGN.md](docs/MULTI_DEVICE_DESIGN.md) is the design for it. It will be
+built when there is hardware to test it against, not before — a blind refactor is exactly how
+commands start crossing between devices.
+
 ## Project status
 
 Architecture and design decisions are in [docs/HANDOFF.md](docs/HANDOFF.md); what has been

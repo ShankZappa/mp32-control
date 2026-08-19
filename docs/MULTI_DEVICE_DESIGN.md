@@ -1,8 +1,19 @@
-# Multiple MP32 devices — implementation design (not enabled yet)
+# Multiple devices — implementation design (not enabled yet)
 
-Supporting multiple MP32 units in one controller is technically feasible, but it changes
-the application from a single device client into a device manager. It should only be
-enabled when two physical units are available for live protocol and failure testing.
+Supporting several units in one controller is technically feasible, but it changes the
+application from a single device client into a device manager. It should only be enabled
+when at least two physical units are available for live protocol and failure testing.
+
+**Scope is wider than two MP32s.** Related preamp hardware from the same family is reached
+the same way — the same host server, the same admin port, the same framing — but exposes a
+different number of preamps and a different report format. So the manager has to key on what
+each host actually reports rather than assuming every unit is a 32-channel MP32. The
+fixed-32 channel strip is tracked separately in `VERIFICATION.md` under "Next up"; it is a
+prerequisite for this, not a detail of it.
+
+**Nothing here has been tested.** This is a design, written against one unit. If you have
+two units — of any supported kind — on one network and try any of it, findings are welcome
+in an issue, including negative ones. Sanitize serials and private addresses first.
 
 ## GitHub handoff — physical implementation owner needed
 

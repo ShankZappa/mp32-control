@@ -8,6 +8,10 @@ if [ -z "$MP32_SKIP_DEVICE_TEST" ]; then
 else
   echo "WARNING: physical MP32 preflight skipped by MP32_SKIP_DEVICE_TEST."
 fi
+# A binary build bundles its dependencies, and two of them carry terms that follow the
+# binary (pywebview BSD-3, zeroconf LGPL-2.1+). Fail the build rather than ship without them.
+python3 collect_licenses.py build/legal-third-party || exit 1
+
 python3 -m PyInstaller --windowed --noconfirm --clean \
   --name "MP32 Control" \
   --icon "assets/mp32-control.icns" \
@@ -16,6 +20,7 @@ python3 -m PyInstaller --windowed --noconfirm --clean \
   --add-data "LICENSE:legal" \
   --add-data "NOTICE:legal" \
   --add-data "THIRD_PARTY_NOTICES.md:legal" \
+  --add-data "build/legal-third-party:legal/third-party" \
   --osx-bundle-identifier "com.studio.mp32control" \
   app.py
 rm -rf "dist/MP32 Control"   # remove redundant onedir folder; keep only the .app
