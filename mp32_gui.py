@@ -117,7 +117,6 @@ ASSET_FILES   = {
     '/assets/load.png': 'load.png',
     '/assets/group.png': 'group.png',
     '/assets/stereo-link.png': 'stereo-link.png',
-    '/assets/buymeacoffee-qr.png': 'buymeacoffee-qr.png',
     '/assets/bmc-mark.png': 'bmc-mark.png',
     '/app-icon.png': 'mp32-control.png',
 }
@@ -1466,28 +1465,27 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
 .hbtn{padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--t2);font-size:12px;cursor:pointer}
 .hbtn:hover{border-color:var(--accent);color:var(--accent)}
 .hbtn.history{width:34px;padding:6px 0;font-size:18px;line-height:1;text-align:center}
-/* About and the support link share one pill: a divider between them, rounded only on the
-   outside. Two separate buttons would add to the header's count, which is the thing the
-   header can least afford.
-
-   align-items:center, not stretch — stretch made the About half grow to the header row's
-   height while the icon half stayed at its own, which is exactly what made the two read as
-   parts from different sets. Centred, both settle on the same 40 px as every other header
-   button. */
-.hpair{display:inline-flex;align-items:center}
-.hpair>.hbtn{border-radius:0;display:inline-flex;align-items:center;justify-content:center}
-.hpair>.hbtn:first-child{border-top-left-radius:8px;border-bottom-left-radius:8px}
-.hpair>.hbtn:last-child{border-top-right-radius:8px;border-bottom-right-radius:8px;border-left:none;
-  box-shadow:inset 1px 0 0 var(--border)}
-.hpair>.hbtn:last-child:hover{box-shadow:inset 1px 0 0 var(--accent)}
-.hbtn.hbmc{min-width:0;padding-left:9px;padding-right:9px}
-/* The mark is Buy Me a Coffee's own, taken from the QR already in assets/. It sits in the
-   header's greyscale at rest so it does not become the brightest thing on screen during a
-   session, and returns to full brand colour on hover, where it is being looked at anyway. */
-.hbtn.hbmc img{display:block;width:14px;height:14px;border-radius:2px;
-  filter:grayscale(1) invert(1) brightness(1.15);opacity:.75;
-  transition:filter .15s ease,opacity .15s ease}
-.hbtn.hbmc:hover img{filter:none;opacity:1}
+/* About and the support link are ONE control with two halves, not two buttons sitting
+   next to each other. The border and background belong to the pill; the halves carry
+   neither, and are separated by a single inset hairline. Hovering lights only the half the
+   pointer is over, so it is obvious which one will fire. */
+.hpair{display:inline-flex;align-items:stretch;border:1px solid var(--border);
+  border-radius:8px;background:var(--card);overflow:hidden}
+.hpair>.hbtn{border:none;background:transparent;border-radius:0;
+  display:inline-flex;align-items:center;justify-content:center}
+.hpair>.hbtn+.hbtn{box-shadow:inset 1px 0 0 var(--border)}
+.hpair>.hbtn:hover{background:rgba(255,255,255,.05);color:var(--accent)}
+.hpair:focus-within{border-color:var(--accent)}
+/* Buy Me a Coffee's own cup, taken from the QR asset already in this repository and used as
+   a mask so it takes the header's own colour like the ⓘ and ⚙ glyphs beside it. A tinted
+   image sat on the button as a tile; a mask is an icon. Full brand colour on hover, where
+   it is being looked at anyway. */
+.hbtn.hbmc{padding-left:10px;padding-right:10px}
+.hbtn.hbmc i{display:block;width:14px;height:14px;background:currentColor;
+  -webkit-mask:url(/assets/bmc-mark.png) center/contain no-repeat;
+          mask:url(/assets/bmc-mark.png) center/contain no-repeat;
+  transition:background-color .15s ease}
+.hbtn.hbmc:hover i{background:#FFDD00}
 .hbtn:disabled{opacity:.28;cursor:default;border-color:var(--border);color:var(--t3)}
 .hbtn:disabled:hover{border-color:var(--border);color:var(--t3)}
 .modal-bg{position:fixed;z-index:400;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px)}
@@ -1498,16 +1496,7 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
 .about .close{width:100%;margin-top:10px;padding:9px;border-radius:8px;border:1px solid var(--accent);background:rgba(124,92,255,.15);color:var(--t1);cursor:pointer}
 /* Support block. The QR is here because the desktop window cannot hand a link to a phone,
    and the phone is where people actually pay for things. */
-.bmc{display:flex;align-items:center;gap:14px;margin:14px 0 4px;padding:12px;border-radius:10px;
-  border:1px solid rgba(255,221,0,.35);background:rgba(255,221,0,.07)}
-.bmc-qr{width:96px;height:96px;flex:0 0 96px;border-radius:8px;background:#fff;padding:4px;object-fit:contain}
-.bmc-txt{min-width:0}
-.bmc-txt p{margin:0 0 8px}
-.bmc-btn{display:inline-block;padding:8px 14px;border-radius:8px;text-decoration:none;
-  background:#FFDD00;color:#0d0d18;font-size:12px;font-weight:700;letter-spacing:.2px}
-.bmc-btn:hover{filter:brightness(1.08)}
-.bmc-url{display:block;margin-top:7px;font-size:10px;color:var(--t3);word-break:break-all}
-@media (max-width:430px){.bmc{flex-direction:column;text-align:center}.bmc-txt p{margin-bottom:10px}}
+.about-link{color:var(--accent);text-decoration:underline;text-underline-offset:2px}
 .devpanel{position:fixed;z-index:200;top:56px;right:74px;width:290px;background:rgba(18,20,38,.98);border:1px solid var(--accent);border-radius:11px;padding:12px;display:none;backdrop-filter:blur(20px)}
 .devpanel.show{display:block}
 .dp-h{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--t3);margin-bottom:6px}
@@ -1543,6 +1532,8 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
   .hright .hbtn{min-height:40px;min-width:44px;padding:0 10px;display:inline-flex;align-items:center;
     justify-content:center;gap:5px;flex:0 0 auto;font-size:13px}
   .hbtn.history{width:44px;min-width:44px;padding:0;font-size:19px}
+  .hright .hpair{min-height:40px}
+  .hright .hpair>.hbtn{min-height:0}
   .pill{padding:8px 11px;font-size:12px;white-space:nowrap;flex:0 0 auto}
   #stxt{display:none}#stxtShort{display:inline}
   .pbtn{width:44px;height:40px;font-size:14px}
@@ -1618,7 +1609,7 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
     <button class="hbtn" id="gainModeBtn" onclick="toggleGainMode()" title="Gain display: classic dB ↔ raw device value">dB</button>
     <div class="hpair">
       <button class="hbtn" id="aboutBtn" onclick="toggleAbout(true)" title="About MP32 Control"><span class="hicon">ⓘ</span><span class="hlabel">About</span></button>
-      <a class="hbtn hbmc" id="bmcBtn" href="https://buymeacoffee.com/franckreisner" target="_blank" rel="noopener noreferrer" title="Buy me a coffee" aria-label="Buy me a coffee"><img src="/assets/bmc-mark.png" alt=""></a>
+      <a class="hbtn hbmc" id="bmcBtn" href="https://buymeacoffee.com/franckreisner" target="_blank" rel="noopener noreferrer" title="Buy me a coffee" aria-label="Buy me a coffee"><i aria-hidden="true"></i></a>
     </div>
     <button class="hbtn" id="devBtn" onclick="toggleDevPanel(event)" title="Device / connection"><span class="hicon">⚙</span><span class="hlabel">⚙ Device</span></button>
   </div>
@@ -1705,15 +1696,8 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
     <p><strong>MP32 Control</strong> is an independent remote control application for the Antelope Audio MP32 32-channel microphone preamplifier.</p>
     <p>It discovers the MP32 on the local network and controls gain, 48 V phantom power, input type, presets and live VU metering. Channel names, colours, groups, stereo links and Public Notes can be shared between desktop and mobile controllers on the same LAN.</p>
     <p>The app runs natively on macOS and Windows and also serves a phone/tablet web interface. It communicates directly with compatible hardware over the local network.</p>
-    <p><strong>Built by Franck Reisner, fueled by caffeine.</strong></p>
-    <div class="bmc">
-      <img class="bmc-qr" src="/assets/buymeacoffee-qr.png" alt="QR code linking to buymeacoffee.com/franckreisner">
-      <div class="bmc-txt">
-        <p>If this saved you some time, you can keep the caffeine coming.</p>
-        <a class="bmc-btn" href="https://buymeacoffee.com/franckreisner" target="_blank" rel="noopener noreferrer">Buy me a coffee</a>
-        <span class="bmc-url">buymeacoffee.com/franckreisner</span>
-      </div>
-    </div>
+    <p><strong>Built by Franck Reisner.</strong> If it saved you some time, the cup beside
+    this button will <a class="about-link" href="https://buymeacoffee.com/franckreisner" target="_blank" rel="noopener noreferrer">buy me a coffee</a>.</p>
     <p>This is an independent project and is not affiliated with or endorsed by Antelope Audio.</p>
     <button class="close" onclick="toggleAbout(false)">Close</button>
   </section>
