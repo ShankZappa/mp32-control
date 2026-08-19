@@ -1544,8 +1544,10 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
    it is being looked at anyway. */
 .hbtn.hbmc{padding-left:10px;padding-right:10px}
 .hbtn.hbmc i{display:block;width:14px;height:14px;background:currentColor;
-  -webkit-mask:url(/assets/bmc-mark.png) center/contain no-repeat;
-          mask:url(/assets/bmc-mark.png) center/contain no-repeat;
+  /* Assets are served with a day of cache, so a file that changes shape between builds is
+     still the old one in an already-running webview. The query makes the URL change with it. */
+  -webkit-mask:url(/assets/bmc-mark.png?v=131) center/contain no-repeat;
+          mask:url(/assets/bmc-mark.png?v=131) center/contain no-repeat;
   transition:background-color .15s ease}
 .hbtn.hbmc:hover i{background:#FFDD00}
 .hbtn:disabled{opacity:.28;cursor:default;border-color:var(--border);color:var(--t3)}
