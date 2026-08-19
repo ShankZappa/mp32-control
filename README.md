@@ -8,13 +8,13 @@ and serves the same interface to phones and tablets on the local network.
 
 ## Why this exists
 
-The MP32 is capable hardware with a long service life. Its control software has not kept
-pace, and attempts to raise this with the manufacturer went unanswered. This project is an
-independent client so that hardware people already own stays usable.
+The MP32 is capable hardware with a long service life. This is an independent client for
+it, written for a working studio that needed the preamps reachable from more than one
+machine at once, and from a phone or tablet standing at the mic rather than at the desk.
 
 It replaces nothing on the device and requires no modification to it. It speaks to the same
-host server the manufacturer's own panel speaks to, over the local network, and the two can
-run alongside each other.
+host server over the local network that any other control client does, and more than one
+client can be connected at the same time.
 
 ## Features
 
