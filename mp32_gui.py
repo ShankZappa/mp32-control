@@ -1552,16 +1552,16 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
 /* Role is a shape, not a word and not a decoration on the state dot: filled means this
    machine publishes mp32-control.local and serves the phones, hollow means it follows one
    that does. The dot beside it stays the connection state, so the two facts never blur. */
-/* The web host is the machine phones actually connect to, so a phone is what marks it —
-   the same language as the monitor beside it, which counts controllers. The slot is always
-   reserved: showing and hiding must never resize the button or shift its neighbours. */
-.hrole{width:12px;height:12px;margin-left:5px;flex:0 0 auto;color:var(--t3);opacity:0;
-  transition:opacity .2s ease,color .2s ease}
-.hbtn.hstate.webhost .hrole{opacity:.55}
-/* A phone or tablet is on the web interface right now. Colour and a slow breath, never
-   size — a pulse that moves things is a distraction in a room where people are working. */
-.hbtn.hstate.webhost.served .hrole{opacity:1;color:var(--accent);animation:served 2.4s ease-in-out infinite}
-@keyframes served{0%,100%{opacity:1}50%{opacity:.45}}
+/* A phone or tablet is on the web interface right now — lit in the same green as the
+   connection dot, and simply out when nobody is. One meaning, one colour, no animation: a
+   blinking light in front of someone mixing is an irritation, not information.
+
+   It appears only on a controller that is the web host, since only a host serves handhelds,
+   and only in the desktop window — a phone looking at this panel does not need to be told
+   that a phone is connected. The slot is reserved either way, so nothing ever resizes. */
+.hrole{width:12px;height:12px;margin-left:5px;flex:0 0 auto;color:var(--green);opacity:0;
+  transition:opacity .25s ease}
+.hbtn.hstate.served .hrole{opacity:1}
 .hbtn.hpeers{padding-left:10px;padding-right:11px;gap:5px;font-variant-numeric:tabular-nums}
 .hmon{width:13px;height:13px;display:block;flex:0 0 auto}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -2174,6 +2174,10 @@ function build(){
   updateGroupControls();
 }
 
+// The desktop application opens its own window on the loopback address; anything else is
+// a phone, a tablet or another computer looking at the panel over the network.
+const isLocalView = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+
 // ── Apply state to DOM ──
 function applyState(){
   document.getElementById('dot').className = st.connected?'dot on':'dot off';
@@ -2210,7 +2214,9 @@ function applyState(){
   const isHost = st.controller_role === 'web_host';
   const dev = document.getElementById('devBtn');
   dev.classList.toggle('webhost', isHost);
-  dev.classList.toggle('served', isHost && (st.web_clients || 0) > 0);
+  // Only in the desktop window: /api/status reports the host's role to every client, so a
+  // phone would otherwise light this up and be told about itself.
+  dev.classList.toggle('served', isHost && isLocalView && (st.web_clients || 0) > 0);
 
   document.getElementById('pwr').classList.toggle('on', !!st.power_on);   // preserves .armed
   // Only meaningful while genuinely connected: a disconnected panel has no idea what the
@@ -2939,6 +2945,7 @@ async function poll(){
     st.controller_role=ns.controller_role||'desktop';
     st.connection_state=ns.connection_state||'waiting_for_web_host'; st.connection_error=ns.connection_error||'';
     st.unreachable_hosts=ns.unreachable_hosts||[];
+    st.web_clients=ns.web_clients||0;
     st.current_preset=ns.current_preset; st.peaks=ns.peaks||st.peaks; st.device_info=ns.device_info||{}; st.demo=ns.demo;
     if(ns.server_url){ const u=document.getElementById('dpUrl'); if(u) u.textContent=ns.server_url; }
     if(ns.direct_server_url){ const u=document.getElementById('dpDirect'); if(u) u.textContent=ns.direct_server_url; }
