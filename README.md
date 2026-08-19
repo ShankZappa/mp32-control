@@ -27,6 +27,14 @@ client can be connected at the same time.
 - stable `http://mp32-control.local:8765` mobile URL with automatic host failover
 - automatic local-network device discovery; no hardcoded device serial number
 
+## Download
+
+Built applications are on the [releases page](https://github.com/ShankZappa/mp32-control/releases).
+The macOS build is ad-hoc signed, so the first launch on another Mac needs right-click →
+Open → Open, once. The Windows download is a build kit rather than an executable —
+PyInstaller cannot cross-compile, so the `.exe` is produced on a Windows machine from the
+scripts inside it.
+
 ## Quick start from source
 
 Python 3.9 or newer is required.
