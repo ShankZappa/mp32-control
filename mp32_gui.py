@@ -118,6 +118,7 @@ ASSET_FILES   = {
     '/assets/group.png': 'group.png',
     '/assets/stereo-link.png': 'stereo-link.png',
     '/assets/buymeacoffee-qr.png': 'buymeacoffee-qr.png',
+    '/assets/bmc-mark.png': 'bmc-mark.png',
     '/app-icon.png': 'mp32-control.png',
 }
 
@@ -1465,6 +1466,28 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
 .hbtn{padding:6px 11px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--t2);font-size:12px;cursor:pointer}
 .hbtn:hover{border-color:var(--accent);color:var(--accent)}
 .hbtn.history{width:34px;padding:6px 0;font-size:18px;line-height:1;text-align:center}
+/* About and the support link share one pill: a divider between them, rounded only on the
+   outside. Two separate buttons would add to the header's count, which is the thing the
+   header can least afford.
+
+   align-items:center, not stretch — stretch made the About half grow to the header row's
+   height while the icon half stayed at its own, which is exactly what made the two read as
+   parts from different sets. Centred, both settle on the same 40 px as every other header
+   button. */
+.hpair{display:inline-flex;align-items:center}
+.hpair>.hbtn{border-radius:0;display:inline-flex;align-items:center;justify-content:center}
+.hpair>.hbtn:first-child{border-top-left-radius:8px;border-bottom-left-radius:8px}
+.hpair>.hbtn:last-child{border-top-right-radius:8px;border-bottom-right-radius:8px;border-left:none;
+  box-shadow:inset 1px 0 0 var(--border)}
+.hpair>.hbtn:last-child:hover{box-shadow:inset 1px 0 0 var(--accent)}
+.hbtn.hbmc{min-width:0;padding-left:9px;padding-right:9px}
+/* The mark is Buy Me a Coffee's own, taken from the QR already in assets/. It sits in the
+   header's greyscale at rest so it does not become the brightest thing on screen during a
+   session, and returns to full brand colour on hover, where it is being looked at anyway. */
+.hbtn.hbmc img{display:block;width:14px;height:14px;border-radius:2px;
+  filter:grayscale(1) invert(1) brightness(1.15);opacity:.75;
+  transition:filter .15s ease,opacity .15s ease}
+.hbtn.hbmc:hover img{filter:none;opacity:1}
 .hbtn:disabled{opacity:.28;cursor:default;border-color:var(--border);color:var(--t3)}
 .hbtn:disabled:hover{border-color:var(--border);color:var(--t3)}
 .modal-bg{position:fixed;z-index:400;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px)}
@@ -1593,7 +1616,10 @@ body.groupmode .strip .cname,body.groupmode .strip .ctint{pointer-events:none}
     <button class="hbtn history" id="redoBtn" onclick="redoChange()" title="Redo (Ctrl/Cmd+Shift+Z)" aria-label="Redo" disabled>↷</button>
     <button class="hbtn" id="peersBtn" onclick="togglePeersPanel(event)" title="Controllers online"><span class="pcdot"></span><span id="peerCount">1</span></button>
     <button class="hbtn" id="gainModeBtn" onclick="toggleGainMode()" title="Gain display: classic dB ↔ raw device value">dB</button>
-    <button class="hbtn" id="aboutBtn" onclick="toggleAbout(true)" title="About MP32 Control"><span class="hicon">ⓘ</span><span class="hlabel">About</span></button>
+    <div class="hpair">
+      <button class="hbtn" id="aboutBtn" onclick="toggleAbout(true)" title="About MP32 Control"><span class="hicon">ⓘ</span><span class="hlabel">About</span></button>
+      <a class="hbtn hbmc" id="bmcBtn" href="https://buymeacoffee.com/franckreisner" target="_blank" rel="noopener noreferrer" title="Buy me a coffee" aria-label="Buy me a coffee"><img src="/assets/bmc-mark.png" alt=""></a>
+    </div>
     <button class="hbtn" id="devBtn" onclick="toggleDevPanel(event)" title="Device / connection"><span class="hicon">⚙</span><span class="hlabel">⚙ Device</span></button>
   </div>
   <div class="hstatus">

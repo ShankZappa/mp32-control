@@ -19,6 +19,20 @@ authority to defer to.
   `PeerService` replicates them peer-to-peer with per-field last-write-wins. A joining
   controller bootstraps them from the current host, which gives it one unambiguous place to
   ask. Local Notes remain browser-local.
+- **The browsers are the durable store; the controller process is not.** `PeerService.fields`
+  lives in memory and is never written to disk, so restarting a controller empties it
+  completely. Nothing is lost, because every browser holds its own copy in `localStorage`
+  and `seedSharedMeta()` re-announces the whole set on load — but the consequence is easy to
+  get wrong: **a metadata change written straight to `/api/meta_event` only touches volatile
+  state.** Restart the controller before every holding browser has polled it, and the old
+  values come straight back from whichever browser was not looking.
+
+  Two practical rules follow. Deletions must be made from a browser (the UI's `Reset all`
+  does this correctly: it clears its own store *and* pushes empty values with fresh HLC
+  timestamps), and they only reach a browser that is running at the time. A phone that was
+  asleep re-seeds what it still remembers when it wakes. Observed 2026-08-19: colours
+  deleted through the API reappeared verbatim after a controller restart, re-seeded by a
+  Safari tab that had never seen the deletion.
 - **Replication is continuous, so inheriting the role transfers nothing.** A host that
   crashes or loses its network cannot hand anything over, so nothing may depend on it doing
   so. Every controller already holds a full metadata replica; the host is only the bootstrap
