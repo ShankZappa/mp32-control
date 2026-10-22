@@ -6,6 +6,8 @@ and serves the same interface to phones and tablets on the local network.
 
 > This project is not affiliated with, sponsored by, or endorsed by Antelope Audio.
 
+![MP32 Control — 32 channels with gain, metering, phantom power and input type (demo mode, no device connected)](docs/images/screenshot.png)
+
 ## Why this exists
 
 The MP32 is capable hardware with a long service life. This is an independent client for
