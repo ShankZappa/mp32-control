@@ -1,4 +1,4 @@
-; ============================================================================
+﻿; ============================================================================
 ;  MP32 Control — Windows installer
 ;
 ;  Build with Inno Setup 6 (free, from jrsoftware.org). Either double-click
@@ -50,7 +50,8 @@ LicenseFile=..\LICENSE
 ; Administrator rights are required, not optional: the firewall rules and a
 ; Program Files install both need them.
 PrivilegesRequired=admin
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"

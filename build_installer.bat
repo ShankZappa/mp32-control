@@ -1,10 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
 REM ============================================================================
-REM  Build the Windows installer: MP32-Control-1.3.1-Setup.exe
+REM  Build the Windows installer: MP32-Control-1.3.2-Setup.exe
 REM  RUN THIS ON A WINDOWS MACHINE, after build_windows.bat has succeeded.
 REM
-REM  Needs Inno Setup 6 — free, from https://jrsoftware.org/isdl.php
+REM  Needs Inno Setup 6 -- free, from https://jrsoftware.org/isdl.php
 REM
 REM  The installer copies the app into Program Files, creates Start Menu and
 REM  optional desktop shortcuts, adds the four firewall rules, and registers an
@@ -32,6 +32,7 @@ set ISCC=
 for %%P in (
   "%ProgramFiles(x86)%\Inno Setup 6\ISCC.exe"
   "%ProgramFiles%\Inno Setup 6\ISCC.exe"
+  "%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe"
 ) do (
   if exist %%P set ISCC=%%P
 )
@@ -55,7 +56,7 @@ if errorlevel 1 (
 
 echo.
 echo ============================================================
-echo  Done.  dist\MP32-Control-1.3.1-Setup.exe
+echo  Done.  dist\MP32-Control-1.3.2-Setup.exe
 echo.
 echo  Copy that one file to each studio Windows machine and run it.
 echo  It asks for Administrator rights, which it needs for the

@@ -1,0 +1,18 @@
+# Windows scripts must reach a Windows machine with CRLF. cmd handles LF batch
+# files unreliably — labels and goto in particular — and the first Windows build
+# of this project lost time to exactly that.
+*.bat    text eol=crlf
+*.iss    text eol=crlf
+*.ps1    text eol=crlf
+
+# Everything else stays as it is in the repository.
+*.sh     text eol=lf
+*.command text eol=lf
+*.py     text eol=lf
+*.md     text eol=lf
+
+# Binary, never touched.
+*.png    binary
+*.ico    binary
+*.icns   binary
+*.zip    binary

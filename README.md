@@ -6,8 +6,6 @@ and serves the same interface to phones and tablets on the local network.
 
 > This project is not affiliated with, sponsored by, or endorsed by Antelope Audio.
 
-![MP32 Control — 32 channels with gain, metering, phantom power and input type (demo mode, no device connected)](docs/images/screenshot.png)
-
 ## Why this exists
 
 The MP32 is capable hardware with a long service life. This is an independent client for
@@ -128,7 +126,8 @@ proven on hardware and what has not is tracked in
 
 Known limitations at this release:
 
-- the Windows executable has not yet been built or tested on a Windows machine;
+- the Windows build has been produced and the packaged application runs, but not yet
+  against an MP32 — see docs/WINDOWS_BUILD_REPORT.md;
 - macOS builds are ad-hoc signed, so other Macs show a first-launch warning;
 - the HTTP API has no authentication — see the warning above.
 

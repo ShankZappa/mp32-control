@@ -5,7 +5,7 @@ REM  RUN AS ADMINISTRATOR: right-click this file, "Run as administrator".
 REM
 REM  Without these rules the app still controls the device and its own window
 REM  works, but nothing else can reach it: phones cannot open the panel and
-REM  other controllers see this machine as unreachable — which also makes it
+REM  other controllers see this machine as unreachable -- which also makes it
 REM  lose the web-host role to a machine that is reachable.
 REM
 REM  Run this ONCE per machine. Re-running is harmless: old rules are replaced.

@@ -72,7 +72,7 @@ there is a third option that does everything in one step, including the firewall
    not unpack itself on every launch.
 3. Double-click **`build_installer.bat`**.
 
-Result: **`dist\MP32-Control-1.3.1-Setup.exe`** — one file.
+Result: **`dist\MP32-Control-1.3.2-Setup.exe`** — one file.
 
 **On every other machine**, just run that Setup once. It asks for Administrator rights, which
 it genuinely needs, and then:

@@ -7,7 +7,6 @@ import sys
 import threading
 import socket
 import time
-from http.server import ThreadingHTTPServer
 from urllib.request import urlopen
 import mp32_gui as M
 
@@ -48,7 +47,7 @@ def _serve():
     M.Handler.direct_mobile_url = direct_url
     M.Handler.mobile_url = hs.url if hs.available else direct_url
     try:
-        server = ThreadingHTTPServer((M.SERVER_BIND, M.SERVER_PORT), M.Handler)
+        server = M.PanelHTTPServer((M.SERVER_BIND, M.SERVER_PORT), M.Handler)
     except OSError as e:
         # Previously this died silently inside a daemon thread and the window opened onto a
         # refused connection — the blank-page report.
@@ -89,6 +88,11 @@ def _wait_for_server(host="127.0.0.1", port=M.SERVER_PORT, timeout=30.0):
     while time.time() < end:
         if _runtime.get('bind_error'):
             return False
+        # Until our own bind has succeeded, a 200 here could come from another copy that
+        # already holds the port, and this one would open a window onto that copy.
+        if 'server' not in _runtime:
+            time.sleep(0.05)
+            continue
         try:
             with urlopen(f"http://{host}:{port}/", timeout=1.0) as r:
                 if r.status == 200 and len(r.read(512)) > 0:

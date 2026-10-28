@@ -22,6 +22,16 @@ from urllib.parse import urlparse
 from urllib.request import Request, build_opener, ProxyHandler
 from typing import Optional, List, Dict, Any
 
+# A Windows console or redirected log uses a legacy code page that has no box-drawing or
+# emoji characters, and a print() that cannot encode raises instead of degrading. A
+# --windowed build has no streams at all, hence the None check.
+for _stream in (sys.stdout, sys.stderr):
+    if _stream is not None and hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(errors="replace")
+        except Exception:
+            pass
+
 try:
     from zeroconf import Zeroconf, ServiceInfo, IPVersion
     ZEROCONF_AVAILABLE = True
@@ -3263,6 +3273,22 @@ def local_lan_ip(max_age: float = LAN_IP_CACHE_TTL) -> str:
     return ip
 
 
+class PanelHTTPServer(ThreadingHTTPServer):
+    """The panel's HTTP server, with the same "port already taken" behaviour on every OS.
+
+    On Windows SO_REUSEADDR lets a second process bind a port that another one is already
+    listening on, so a second copy would start silently and split the requests between them
+    instead of reporting that one is running. SO_EXCLUSIVEADDRUSE is Windows' equivalent of
+    the POSIX semantics the rest of this code assumes.
+    """
+    if os.name == "nt":
+        allow_reuse_address = False
+
+        def server_bind(self):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+            super().server_bind()
+
+
 def main():
     print("╔══════════════════════════════════════════════════╗")
     print("║   MP32 Control — Independent Control Panel       ║")
@@ -3290,7 +3316,7 @@ def main():
     # display "discovering"/"connecting" states, so it is far better to show them than to
     # leave a window with nothing in it.
     try:
-        server = ThreadingHTTPServer((SERVER_BIND, SERVER_PORT), Handler)
+        server = PanelHTTPServer((SERVER_BIND, SERVER_PORT), Handler)
     except OSError as e:
         print(f"\n❌  Cannot open port {SERVER_PORT}: {e}")
         print("    MP32 Control is probably already running. Open " + url + " instead,")

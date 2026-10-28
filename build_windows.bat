@@ -16,14 +16,20 @@ cd /d "%~dp0"
 
 echo.
 echo === Checking Python ===
-python --version >nul 2>nul
-if errorlevel 1 (
-  echo ERROR: "python" was not found on PATH.
+REM "python" alone may be the Microsoft Store alias, which only prints "Python was not found".
+REM Try the py launcher first and accept a candidate only once it has run code.
+set "PYTHONUTF8=1"
+set "PY="
+for %%C in ("py -3" "python" "python3") do if not defined PY (
+  %%~C -c "import sys" >nul 2>nul && set "PY=%%~C"
+)
+if not defined PY (
+  echo ERROR: no working Python was found ^(tried py -3, python, python3^).
   echo Install Python 3.9 or newer from python.org and tick "Add Python to PATH".
   goto :fail
 )
-python --version
-python -c "import sys; sys.exit(0 if sys.version_info >= (3,9) else 1)"
+!PY! --version
+!PY! -c "import sys; sys.exit(0 if sys.version_info >= (3,9) else 1)"
 if errorlevel 1 (
   echo ERROR: Python 3.9 or newer is required.
   goto :fail
@@ -46,8 +52,8 @@ echo.
 echo === Installing build tools ===
 REM pythonnet is what lets pywebview use the modern Edge WebView2 engine on Windows.
 REM Without it pywebview falls back to a legacy engine and the panel renders incorrectly.
-python -m pip install --upgrade pip
-python -m pip install pywebview pythonnet pyinstaller "zeroconf>=0.32"
+!PY! -m pip install --upgrade pip
+!PY! -m pip install -r requirements.txt
 if errorlevel 1 (
   echo ERROR: installing dependencies failed. Check the network connection and retry.
   goto :fail
@@ -71,7 +77,7 @@ if "!WV2!"=="0" (
 echo.
 echo === Physical MP32 preflight ===
 if not defined MP32_SKIP_DEVICE_TEST (
-  python device_preflight.py
+  !PY! device_preflight.py
   if errorlevel 1 (
     echo.
     echo Preflight failed, so no release build was produced.
@@ -94,13 +100,13 @@ if defined MP32_ONEDIR (
 
 REM  A binary build bundles its dependencies, and two of them carry terms that follow
 REM  the binary (pywebview BSD-3, zeroconf LGPL-2.1+). Fail rather than ship without them.
-python collect_licenses.py "build\legal-third-party"
+!PY! collect_licenses.py "build\legal-third-party"
 if errorlevel 1 (
   echo ERROR: third-party license texts could not be collected. See the message above.
   goto :fail
 )
 
-python -m PyInstaller --windowed !PKGMODE! --noconfirm --clean ^
+!PY! -m PyInstaller --windowed !PKGMODE! --noconfirm --clean ^
   --name "MP32 Control" ^
   --icon "assets\mp32-control.ico" ^
   --version-file "version_info.txt" ^

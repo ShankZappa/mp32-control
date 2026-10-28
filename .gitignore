@@ -23,6 +23,7 @@ installer/Output/
 
 # Logs and runtime state
 *.log
+build-log.txt
 last_device.json
 
 # Never commit: network logs, credentials, signing material

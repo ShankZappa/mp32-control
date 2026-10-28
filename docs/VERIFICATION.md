@@ -235,7 +235,15 @@ any device port.
 - [ ] Build and smoke-test an Intel (`x86_64`) macOS application.
 - [ ] Sign a distributable build with a Developer ID (`MP32_CODESIGN_IDENTITY`). The current
   1.3.1 bundle is ad-hoc signed, so macOS shows a first-launch warning on other machines.
-- [ ] Build and smoke-test the Windows executable on a clean Windows machine.
+- [x] **Build and smoke-test the Windows executable** (2026-10-29, Windows 11 Home 26300,
+  Python 3.14.5). `BUILD MP32 Control.bat` runs end to end and produces both the folder
+  build and an Inno Setup installer. The packaged app starts, serves the panel on 8765 and
+  renders the full 32-channel UI in WebView2. It found four real defects, all now fixed —
+  see `WINDOWS_BUILD_REPORT.md`. **Built with `MP32_SKIP_DEVICE_TEST=1`:** no unit was
+  reachable from that machine, so it is not a release. Rebuild on the studio network.
+- [ ] Rebuild the Windows executable with the preflight gate passing, on the studio network.
+- [ ] Run the Windows Setup.exe: install, shortcuts, firewall rules, and their removal on
+  uninstall. It needs Administrator rights and was not run during the first build.
 - [ ] Test Windows firewall onboarding for TCP 8765 and mDNS UDP 5353.
 - [ ] Verify stable-host failover Mac→Windows and Windows→Mac from an installed iPad PWA.
 - [ ] Verify the handover indicator and automatic feed recovery after host loss.

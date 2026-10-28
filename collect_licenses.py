@@ -26,6 +26,10 @@ import shutil
 import sys
 
 PACKAGES = ("pywebview", "zeroconf", "pyinstaller")
+# On Windows pywebview reaches WebView2 through pythonnet, so the bridge and what it loads
+# are bundled too. All permissive (MIT / BSD-3), but BSD-3 and MIT both ask for the notice.
+if sys.platform == "win32":
+    PACKAGES += ("pythonnet", "clr_loader", "cffi", "pycparser", "bottle")
 WANTED = ("LICENSE", "LICENCE", "COPYING", "NOTICE")
 
 
