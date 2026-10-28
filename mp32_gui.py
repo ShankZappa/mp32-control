@@ -435,6 +435,12 @@ class MP32Device:
                     s.close()
                     return
                 self.sock = s
+                # Nothing is written to the device before this passes.
+                if not self._confirm_unit_type():
+                    s.close()
+                    self.sock = None
+                    self.last_error = self._load_error
+                    return
                 self._initializing = True
                 self.connection_state = "loading_config"
                 self._register_report_format()
@@ -468,6 +474,45 @@ class MP32Device:
                     time.sleep(0.6)
         self.last_error = last_error
         print(f"[MP32] Connection failed: {last_error} — retrying with fresh sessions")
+
+    def _confirm_unit_type(self) -> bool:
+        """Refuse to register our report format on anything that is not an MP32.
+
+        Registration is host-wide, sticky and first-one-wins, and a format that does not
+        match the attached unit describes hardware that unit does not have. On 2026-10-29 a
+        ZEN Q reached `CRITICAL ERROR / HardFault_Handler` after this client was pointed at
+        it by hand — the firmware fault this project's own PROTOCOL.md warned about, found
+        the way those warnings usually are.
+
+        `_auto_target()` already checks the attached unit before choosing a target, but
+        `retarget()` — the Device panel's "Connect to device" field, and the remembered
+        address — went straight to the socket. So the check belongs here instead: the last
+        point every path passes through before anything is written.
+
+        A host that will not answer its admin port is refused too. Not knowing what is on
+        the other end is the condition under which this goes wrong, so it is not a reason
+        to proceed.
+        """
+        if not DEVICE_MATCH:
+            return True                      # the match is switched off deliberately
+        info = query_admin(self.ip)
+        if info is None:
+            self._load_error = (f"{self.ip} does not answer on the admin port, so the unit "
+                                f"attached to it cannot be confirmed. Refusing to register a "
+                                f"report format blind.")
+            self.connection_state = "unit_unconfirmed"
+            print(f"[MP32] REFUSED: {self._load_error}")
+            return False
+        names = info.get("devices") or []
+        if any(DEVICE_MATCH.lower() in n.lower() for n in names):
+            return True
+        found = ", ".join(names) if names else "nothing"
+        self._load_error = (f"{self.ip} has {found} attached, not an {DEVICE_MATCH}. "
+                            f"Registering this format on it could fault its firmware, so "
+                            f"the connection was refused.")
+        self.connection_state = "wrong_unit"
+        print(f"[MP32] REFUSED: {self._load_error}")
+        return False
 
     def _register_report_format(self):
         """Register the report format before the first request on this connection.
@@ -2213,7 +2258,14 @@ function applyState(){
   let offlineLabel={waiting_for_web_host:'Waiting for Web Host…',discovering:'Finding device…',
     connecting:'Connecting to device…',loading_config:'Loading device config…',
     config_empty:'Device busy · retrying…',tcp_error:'Device unreachable · retrying…',
-    disconnected:'Connection lost · retrying…'}[st.connection_state]||'Offline';
+    disconnected:'Connection lost · retrying…',
+    wrong_unit:'Refused · that is not an MP32',
+    unit_unconfirmed:'Refused · cannot confirm what is attached'}[st.connection_state]||'Offline';
+  // A refusal is not a retry. Say what was found and why nothing was sent, because the
+  // alternative — writing this format to the wrong unit — has faulted a device's firmware.
+  if(st.connection_state==='wrong_unit'||st.connection_state==='unit_unconfirmed'){
+    if(st.connection_error) offlineLabel=st.connection_error;
+  }
   // Name the blocked host instead of waiting silently: a controller that heartbeats but
   // cannot be reached on its HTTP port is almost always a local firewall on that machine.
   const blocked=(st.unreachable_hosts||[]).filter(h=>h.web_leader);
@@ -2234,7 +2286,8 @@ function applyState(){
         : st.connection_state==='config_empty' ? 'Device busy'
         : st.connected===false && st.connection_state==='online' ? 'Offline'
         : {discovering:'Finding…',connecting:'Connecting…',loading_config:'Loading…',
-           tcp_error:'No device',disconnected:'Lost'}[st.connection_state] || 'Offline');
+           tcp_error:'No device',disconnected:'Lost',
+           wrong_unit:'Wrong unit',unit_unconfirmed:'Unconfirmed'}[st.connection_state] || 'Offline');
   // The header shows a dot, not a sentence. The words still exist — they are the button's
   // tooltip and the Device panel's own heading — so nothing is lost, it just stops taking
   // 180 px of a row that has to survive a phone.

@@ -5,6 +5,31 @@ which had stopped describing its own contents.
 
 ## Known defects
 
+- [x] **The client could be pointed at hardware it must not write to.** Found the hard way
+  2026-10-29: a ZEN Q was entered by hand in the Device panel's "Connect to device" field
+  and reached `CRITICAL ERROR / HardFault_Handler`. Fixed the same day.
+
+  `_auto_target()` had always confirmed the attached unit from the passive admin read
+  before choosing a target. `retarget()` — the manual field, and the remembered address in
+  `last_device.json` — went straight to the socket, and `_try_connect()` registered the
+  report format on whatever answered. Registration is host-wide, sticky and first-one-wins,
+  and a format that does not match the attached unit describes hardware that unit does not
+  have. `docs/PROTOCOL.md` had warned about this in prose; prose does not stop a socket.
+
+  The check now sits in `MP32Device._confirm_unit_type()`, called from `_try_connect()`
+  immediately before the first write, which is the one point every path passes through —
+  automatic, peer-learned, remembered and manual alike. A host that will not answer its
+  admin port is refused too: not knowing what is on the other end is the condition under
+  which this goes wrong, so it is not a reason to proceed. The refusal is a state of its
+  own (`wrong_unit`, `unit_unconfirmed`), not a retry, and the header says what was found.
+
+  There is deliberately no override. Supporting another unit means carrying that unit's
+  own report format, which is the "Show only the channels the connected unit actually has"
+  item below, not a checkbox.
+
+  Covered by `tests/test_unit_guard.py`, 18 checks, including the ZEN Q case by name.
+
+
 - [ ] **The HLC logical counter is lost to floating-point precision.** Found 2026-08-15 by
   `tests/test_hlc.py`. Not fixed — the fix changes the timestamp encoding, which every
   controller compares against, so it needs a decision and a cross-machine test rather than
@@ -86,7 +111,7 @@ scratchpad.
 python3 tests/run_all.py
 ```
 
-Seven suites, 162 checks, about 50 seconds, no hardware required. Every controller is a real
+Eight suites, 180 checks, about 50 seconds, no hardware required. Every controller is a real
 process running the shipped application over the real HTTP API and real multicast — the
 property that made the originals worth having, since both defects this project shipped were
 in the interaction between controllers rather than inside any one function. The browser half
@@ -102,6 +127,7 @@ in the interaction between controllers rather than inside any one function. The 
 | web-host liveness and the phone's recovery contract | 35 |
 | hybrid logical clock | 11 |
 | metadata survives a controller restart | 18 |
+| nothing is written to an unconfirmed device | 18 |
 
 The two hard-won details that cost the most time are now handled by the harness rather than
 left to discipline — HLC-shaped timestamps via `harness.hlc()`, and per-run multicast

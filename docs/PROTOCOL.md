@@ -106,9 +106,16 @@ Consequences worth designing around:
   that host, and appears to break again after the host reboots. This is the most confusing
   failure mode in the system, and it looks exactly like a session or permissions problem.
 - Registering a format that does not match the attached unit **breaks that host for every
-  client, including the vendor's own panel**, until its server is restarted. Confirm the
-  attached unit from the admin port before opening any device port, and never register a format
-  on a host serving a different kind of unit.
+  client, including the vendor's own panel**, until its server is restarted — and it can do
+  worse than that. On 2026-10-29 this client was pointed by hand at a ZEN Q and the unit
+  reached `CRITICAL ERROR / HardFault_Handler`. Confirm the attached unit from the admin
+  port before opening any device port, and never register a format on a host serving a
+  different kind of unit.
+
+  This client now enforces that rather than asking for it: `MP32Device._confirm_unit_type()`
+  runs immediately before the first write, on every path, and refuses a host that reports a
+  different unit or will not say what it has. Anything built on this code should keep that
+  property.
 - A client must send the **complete** format. A partial registration becomes the format in
   force for everyone else too.
 

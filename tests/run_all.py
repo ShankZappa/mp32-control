@@ -26,6 +26,7 @@ SUITES = [
     ("test_host_failover.py", "web-host liveness and the phone's recovery contract"),
     ("test_hlc.py", "hybrid logical clock"),
     ("test_metadata_persistence.py", "metadata survives a controller restart"),
+    ("test_unit_guard.py", "nothing is written to an unconfirmed device"),
 ]
 
 

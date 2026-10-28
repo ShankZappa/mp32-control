@@ -4,7 +4,7 @@
 python3 tests/run_all.py
 ```
 
-Roughly 50 seconds, 162 checks, no hardware and no network access required. Individual
+Roughly 50 seconds, 180 checks, no hardware and no network access required. Individual
 suites run on their own the same way (`python3 tests/test_group_metadata.py`).
 
 Requires Python 3.9+ and, for the browser-side suites, `node` on PATH. Without node those
@@ -29,6 +29,7 @@ them.
 | `test_host_failover.py` | 35 | Liveness probe and candidacy loss, stale-self exclusion, proxy ordering, CORS and the fields the phone's recovery reads |
 | `test_hlc.py` | 11 | Hybrid logical clock: skew adoption, migration, encoding limits |
 | `test_metadata_persistence.py` | 18 | Metadata restored after restart, deletions holding, corrupt file tolerated |
+| `test_unit_guard.py` | 18 | The report format is never registered on a unit that is not an MP32, or on a host that will not say what it has |
 
 ## What these do NOT cover
 
