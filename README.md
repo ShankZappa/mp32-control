@@ -29,6 +29,12 @@ client can be connected at the same time.
 
 ## Download
 
+> **The published releases are superseded and should not be used.** Both carry a defect
+> that could make this client write an MP32 report format to a different Antelope unit,
+> which faulted a ZEN Q's firmware on 2026-10-29. It is fixed in `main`; build from source
+> until a corrected release is published. Details in
+> [docs/VERIFICATION.md](docs/VERIFICATION.md) under Known defects.
+
 Built applications are on the [releases page](https://github.com/ShankZappa/mp32-control/releases).
 The macOS build is ad-hoc signed, so the first launch on another Mac needs right-click →
 Open → Open, once. The Windows download is a build kit rather than an executable —
@@ -127,7 +133,12 @@ proven on hardware and what has not is tracked in
 Known limitations at this release:
 
 - the Windows build has been produced and the packaged application runs, but not yet
-  against an MP32 — see docs/WINDOWS_BUILD_REPORT.md;
+  against an MP32 — see [docs/WINDOWS_BUILD_REPORT.md](docs/WINDOWS_BUILD_REPORT.md);
+- **this client refuses to connect to anything that is not an MP32.** Registering a report
+  format that does not match the attached unit can fault its firmware, so the unit is
+  confirmed from a passive admin-port read before anything is written, on every path. There
+  is no override. Supporting another model means carrying that model's own format, which is
+  on the roadmap in [docs/VERIFICATION.md](docs/VERIFICATION.md);
 - macOS builds are ad-hoc signed, so other Macs show a first-launch warning;
 - the HTTP API has no authentication — see the warning above.
 
