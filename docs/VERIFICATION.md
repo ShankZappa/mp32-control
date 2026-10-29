@@ -192,6 +192,32 @@ or browser-rendered is simulated here. Those remain on the physical checklists b
   - **Compare tags properly.** `v1.3.10` is newer than `v1.3.9`; string comparison says
     otherwise.
 
+- [ ] **Support a second Antelope model, starting with the ZEN Q.** Wanted, and reachable,
+  but not by relaxing the unit guard — the guard is what stopped the firmware fault.
+
+  The distinction that decides this: the **transport** is shared across the family — framing,
+  JSON commands, the admin port, discovery. The **report format** is not. It describes one
+  product's hardware, so the MP32's tells a ZEN Q about 32 preamps it does not have. That is
+  what faulted it on 2026-10-29.
+
+  Three steps, in order, each useful on its own:
+
+  1. **Observe only.** Connect to a non-MP32 host, register nothing, and log what the server
+     sends. The host broadcasts `[command, args, kwargs]` to every connected client whenever
+     anyone changes something, so running the unit's own panel alongside reveals its command
+     vocabulary and argument order without a single write. The admin read already works on
+     any Antelope host today.
+  2. **Control without registering.** Registration is sticky and first-one-wins, so if that
+     unit's own panel has already registered its format, this client can send that unit's
+     commands by name. Constraint: with no panel running, nothing is registered and the host
+     answers nothing.
+  3. **Carry that unit's own report format.** Full independence, and the same provenance
+     question as the MP32's.
+
+  Deferred 2026-10-29 by the owner, deliberately: connecting the unit directly to a machine
+  on the network beats building an observation mode against hardware nobody can see. Do this
+  with a ZEN Q physically present, not before.
+
 - [ ] iOS PWA test on the real iPad/iPhone: install from `mp32-control.local`, confirm the
   panel loads, then quit the web host and confirm the PWA recovers through a remembered peer
   address rather than waiting on Safari's DNS cache. Then reopen the former host and confirm

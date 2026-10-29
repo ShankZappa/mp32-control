@@ -17,6 +17,10 @@ REM  Optional, set before running if you need them:
 REM    MP32_SKIP_DEVICE_TEST=1  skip the physical MP32 check (UNVERIFIED build)
 REM    MP32_ONEFILE=1           build one .exe instead of a folder
 REM    MP32_CERT_SHA1=<thumb>   sign with a code-signing certificate
+REM    MP32_UNATTENDED=1        never ask anything; for running over SSH, where a prompt
+REM                             would simply hang. Takes the sensible default at every
+REM                             question and skips the firewall step, whose elevation
+REM                             prompt appears on the console, not the remote session.
 REM ============================================================================
 
 set "LOG=%~dp0build-log.txt"
@@ -108,8 +112,12 @@ if "!WV2!"=="1" (
   echo         Evergreen Standalone Installer.
   echo.
   echo WebView2: NOT FOUND >> "%LOG%"
-  set /p "GOON=        Carry on building anyway? [Y/n] "
-  if /i "!GOON!"=="n" goto :cancelled
+  if defined MP32_UNATTENDED (
+    echo         carrying on anyway ^(unattended^)
+  ) else (
+    set /p "GOON=        Carry on building anyway? [Y/n] "
+    if /i "!GOON!"=="n" goto :cancelled
+  )
 )
 
 REM ------------------------------------------------------------ 4. Preflight --
@@ -130,8 +138,12 @@ echo         hardware nobody checked. You can still build without it, but
 echo         the result is marked unverified and should not be handed on
 echo         as a release.
 echo.
-set /p "UNVER=        Build anyway, unverified? [y/N] "
-if /i not "!UNVER!"=="y" goto :preflight_failed
+if defined MP32_UNATTENDED (
+  echo         continuing unverified ^(unattended^)
+) else (
+  set /p "UNVER=        Build anyway, unverified? [y/N] "
+  if /i not "!UNVER!"=="y" goto :preflight_failed
+)
 set "MP32_SKIP_DEVICE_TEST=1"
 echo         continuing UNVERIFIED
 echo Preflight: FAILED, continued unverified >> "%LOG%"
@@ -239,20 +251,35 @@ REM ------------------------------------------------------------- Firewall ---
 echo.
 echo   ----------------------------------------------------------
 echo.
-if defined SETUPEXE (
-  echo   The installer adds the firewall rules itself, so there is
-  echo   nothing further to run on the machines you install it on.
-  echo.
-  set /p "FWNOW=  Open the ports on THIS machine too, to test it here? [y/N] "
-) else (
-  echo   Phones and other controllers can only reach this machine
-  echo   once four ports are open on the private network profile.
-  echo   Without them the app still controls the device and its own
-  echo   window works, but nothing else can see it.
-  echo.
-  set /p "FWNOW=  Open them now? Needs an Administrator prompt. [Y/n] "
-  if "!FWNOW!"=="" set "FWNOW=y"
-)
+set "FWNOW=n"
+if defined MP32_UNATTENDED goto :fw_unattended
+if defined SETUPEXE goto :fw_installer
+goto :fw_plain
+
+:fw_unattended
+echo   Firewall step skipped. Its Administrator prompt appears on the machine's
+echo   own screen, not in a remote session. Run windows_firewall.bat as
+echo   Administrator there, or install the Setup.exe, which adds the rules itself.
+echo Firewall: skipped, unattended >> "%LOG%"
+goto :fw_ask
+
+:fw_installer
+echo   The installer adds the firewall rules itself, so there is
+echo   nothing further to run on the machines you install it on.
+echo.
+set /p "FWNOW=  Open the ports on THIS machine too, to test it here? [y/N] "
+goto :fw_ask
+
+:fw_plain
+echo   Phones and other controllers can only reach this machine
+echo   once four ports are open on the private network profile.
+echo   Without them the app still controls the device and its own
+echo   window works, but nothing else can see it.
+echo.
+set /p "FWNOW=  Open them now? Needs an Administrator prompt. [Y/n] "
+if "!FWNOW!"=="" set "FWNOW=y"
+
+:fw_ask
 if /i "!FWNOW!"=="y" (
   echo.
   echo   Asking for Administrator rights ...
@@ -291,7 +318,7 @@ echo     is unsigned: "More info" then "Run anyway".
 echo.
 echo     The network must be set to Private in Windows, not Public.
 echo.
-pause
+if not defined MP32_UNATTENDED pause
 exit /b 0
 
 REM ============================================================== failures ===
@@ -373,5 +400,5 @@ echo Result: FAILED, nothing was built >> "%LOG%"
 echo.
 echo   Nothing was built. build-log.txt has the full output.
 echo.
-pause
+if not defined MP32_UNATTENDED pause
 exit /b 1
